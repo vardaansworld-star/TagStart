@@ -1,4 +1,4 @@
-🌍 TagStart Pro // Open-Source Project Profile
+🌍 TagStart Pro // Open-Source Project Profile 
 🏷️ Project Name: TagStart Pro
 🎯 Purpose: An Interactive, Global-First HTML Academy for Absolute Beginners
 📝 Core Overview
