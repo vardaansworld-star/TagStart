@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TagStart Pro</title>
+    <style>
+        body { margin:0; font-family:sans-serif; background:#09090b; color:#f4f4f5; display:grid; grid-template-rows:50px 1fr; height:100vh; overflow:hidden; }
+        header { display:flex; justify-content:space-between; align-items:center; padding:0 20px; background:#18181b; border-bottom:1px solid #27272a; font-size:14px; }
+        .main { display:grid; grid-template-columns:300px 1fr 1fr; }
+        .side { background:#111; padding:20px; border-right:1px solid #27272a; display:flex; flex-direction:column; justify-content:space-between; }
+        textarea, iframe { width:100%; height:100%; border:none; background:#09090b; color:#34d399; font-family:monospace; padding:20px; font-size:14px; box-sizing:border-box; outline:none; }
+        iframe { background:white; border-left:1px solid #27272a; }
+        button { background:#2563eb; color:white; border:none; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer; }
+        button:disabled { background:#27272a; color:#71717a; cursor:not-allowed; }
+        code { background:#27272a; color:#f43f5e; padding:2px 4px; border-radius:4px; font-family:monospace; }
+    </style>
+</head>
+<body>
+
+    <header><strong>TAGSTART // DEEP TRACK</strong><div id="lvl">Step 1/4</div></header>
+
+    <div class="main">
+        <div class="side">
+            <div>
+                <h3 id="title" style="margin:0 0 10px 0"></h3>
+                <p id="desc" style="color:#a1a1aa; font-size:14px; line-height:1.4;"></p>
+                <div style="background:#18181b; border:1px solid #27272a; padding:10px; border-radius:6px; font-size:13px; margin-top:15px;">
+                    <b style="color:#2563eb">TASK:</b> <span id="task"></span>
+                </div>
+            </div>
+            <button id="btn" onclick="next()" disabled>Complete Task First</button>
+        </div>
+        <textarea id="edit" spellcheck="false" oninput="run()"></textarea>
+        <iframe id="view"></iframe>
+    </div>
+
+    <script>
+        const steps =[
+            { t:"Text Hierarchy", d:"Use <code>&lt;h1&gt;</code> for titles and <code>&lt;p&gt;</code> for body text.",k: "Write a heading and a paragraph below it.", c: "<h1>Title</h1>\n<p>Text</p>", v: c => c.includes('<h1>')&& c.includes('</h1>')&& c.includes('<p>') && c.includes('</p>')},
+            { t: "Hyperlinks", d: "Links use <code>&lt;a&gt;</code> with an <code>href</code> attribute to point to a URL.", k: "Create a link to Google: &lt;a href='https://google.com'&gt;Go&lt;/a&gt;", c:"", v: c => c.includes('href="https://google.com"') || c.includes("href='https://google.com'") },
+            { t: "Images", d: "Images use <code>&lt;img&gt;</code> and are self-closing. They need a <code>src</code> attribute.", k: "Add an image with src='https://picsum.photos/100'", c: "", v: c => c.includes('<img') && c.includes('src=') },
+            { t: "Unordered Lists", d: "Create lists with a <code>&lt;ul&gt;</code> wrapper and <code>&lt;li&gt;</code> items inside.", k: "Build a list with at least two &lt;li&gt; elements.", c: "<ul>\n  <li>Item 1</li>\n</ul>", v: c => c.includes('<ul>') && (c.match(/<li>/g) || []).length >= 2 }
+        ];
+
+        let idx = 0;
+        const $ =id=> document.getElementById(id);
+
+        function load() {
+            if (idx>=steps.length) {
+                document.querySelector('.main').innerHTML="<div style='grid-column:span 3;text-align:center;padding-top:100px;'><h2>Yay!! Deep Course Finished</h2></div>";
+                return;
+            }
+            $("lvl").innerText=`Step ${idx +1}/${steps.length}`;
+            $("title").innerText=steps[idx].t;
+            $("desc").innerHTML = steps[idx].d;
+            $("task").innerHTML = steps[idx].k;
+            $("edit").value=steps[idx].c;
+            run();
+        }
+
+        function run() {
+            const code=$("edit").value;
+            const doc=$("view").contentDocument;
+            doc.write(`<style>body{font-family:sans-serif;padding:10px;}</style>${code}`);
+            
+
+            
+            const  cleanCode=code.toLowerCase().replace(/\s+/g,' ');
+            const pass = steps[idx].v(cleanCode);
+            $("btn").disabled=!pass;
+            $("btn").innerText=pass ? "Next Challenge ---->" : "Complete Task First";
+        }
+
+        function next() {idx++; load();}
+        load();
+    </script>
+</body>
+</html>
