@@ -1,27 +1,22 @@
-🌍 TagStart Pro // Open-Source Project Profile 
-🏷️ Project Name: TagStart Pro
-🎯 Purpose: An Interactive, Global-First HTML Academy for Absolute Beginners
-📝 Core Overview
-TagStart Pro is a lightweight, zero-dependency, interactive web application designed to teach new developers the structural building blocks of web development. Unlike passive video tutorials, TagStart Pro uses a high-performance, real-time split-screen interface that combines bite-sized conceptual lessons with an active code editor and live compiler rendering window.
+# 🌍 TagStart Pro // Deep Track
 
-By eliminating complex backend barriers and heavy frameworks, the platform loads instantly anywhere across the globe and saves student progression natively in the browser session.
+> An interactive, zero-dependency, global-first HTML academy built entirely in the browser.
 
-🚀 Key Technical Features
-Tri-Panel Live Compiler Interface: Seamlessly bridges the gap between typing code and visual results. Features an asynchronous instruction sidebar, an input code canvas, and an active sandbox preview window.
+TagStart Pro is a lightweight web application designed to help new coders learn the essential building blocks of HTML through an active, hands-on environment. Instead of just reading tutorials, users write real HTML code and watch it compile instantly in a split-screen dashboard.
 
-Deep Track Curriculum Database: Moves past superficial "headings-only" introductions to guide users through fundamental nested elements, semantic anchor tags, absolute image paths, and structural lists.
+---
 
-Lenient Space-Insensitive Validation Engine: Uses a clean formatting regex parser that safely evaluates code accuracy while allowing students structural freedom with spacing, tabs, and indentation.
+### How to Run Locally:
+1. Clone this repository or download the source files.
+2. Open the index.html file directly in any web browser
+3. No installation, server terminal setup, or npm packages required!
+4. You can also use the global link for this project :  https://vardaansworld-star.github.io/TagStart/
 
-Serverless Architecture Optimization: Built purely with localized HTML5, CSS layout mechanics, and vanilla ES6+ JavaScript. Designed to deploy globally for free on edge CDNs like GitHub Pages in under 60 seconds.
+---
 
-Modern Dark-Mode Aesthetic: Engineered using a sleek, low-friction dark interface modeled after high-end engineering platforms like Vercel and GitHub, keeping students focused and preventing visual fatigue.
+## 🛠️ Key Features
 
-🛠️ Tech Stack & Architecture
-Frontend Interface: Semantic HTML5 & Modern CSS Grid Layouts
-
-Programming Logic: Native JavaScript (ES6 Execution Engine)
-
-Data Structure: Array-based Curriculum Object Matrix
-
-Rendering Sandbox: Secured <iframe> Document Compiler Object
+* **Tri-Panel Interactive Workspace:** A unified layout featuring conceptual instructions (left), a live code canvas text area (center), and an encapsulated web preview window (right).
+* **Deep Track Curriculum Engine:** Moves past surface-level text tutorials to guide students through structural text hierarchy (`<h1>`/`<p>`), global hyperlinks (`<a>`), self-closing media (`<img>`), and structural groupings (`<ul>`/`<li>`).
+* **Lenient Spacing Validator:** Uses a specialized regular expression string handler that safely analyzes student input by standardizing formatting, giving them the flexibility to write clean code their own way.
+* **Sleek Modern Tech Aesthetic:** Designed with a dark-mode theme inspired by high-end engineering interfaces like Vercel and GitHub, keeping students focused and reducing visual fatigue.
