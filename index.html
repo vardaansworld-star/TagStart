@@ -35,12 +35,57 @@
     </div>
 
     <script>
-        const steps =[
-            { t:"Text Hierarchy", d:"Use <code>&lt;h1&gt;</code> for titles and <code>&lt;p&gt;</code> for body text.",k: "Write a heading and a paragraph below it.", c: "<h1>Title</h1>\n<p>Text</p>", v: c => c.includes('<h1>')&& c.includes('</h1>')&& c.includes('<p>') && c.includes('</p>')},
-            { t: "Hyperlinks", d: "Links use <code>&lt;a&gt;</code> with an <code>href</code> attribute to point to a URL.", k: "Create a link to Google: &lt;a href='https://google.com'&gt;Go&lt;/a&gt;", c:"", v: c => c.includes('href="https://google.com"') || c.includes("href='https://google.com'") },
-            { t: "Images", d: "Images use <code>&lt;img&gt;</code> and are self-closing. They need a <code>src</code> attribute.", k: "Add an image with src='https://picsum.photos/100'", c: "", v: c => c.includes('<img') && c.includes('src=') },
-            { t: "Unordered Lists", d: "Create lists with a <code>&lt;ul&gt;</code> wrapper and <code>&lt;li&gt;</code> items inside.", k: "Build a list with at least two &lt;li&gt; elements.", c: "<ul>\n  <li>Item 1</li>\n</ul>", v: c => c.includes('<ul>') && (c.match(/<li>/g) || []).length >= 2 }
-        ];
+        const steps = [
+    { 
+        t: "Text Hierarchy", 
+        d: "Use <code>&lt;h1&gt;</code> for titles and <code>&lt;p&gt;</code> for body text.", 
+        k: "Write a heading and a paragraph below it.", 
+        c: "<h1>Title</h1>\n<p>Text</p>", 
+        v: c => c.includes('<h1>') && c.includes('</h1>') && c.includes('<p>') && c.includes('</p>') 
+    },
+    { 
+        t: "Hyperlinks", 
+        d: "Links use <code>&lt;a&gt;</code> with an <code>href</code> attribute to point to a URL.", 
+        k: "Create a link: &lt;a href='https://google.com'&gt;Go&lt;/a&gt;", 
+        c: "", 
+        v: c => c.includes('href="https://google.com"') || c.includes("href='https://google.com'") 
+    },
+    { 
+        t: "Images", 
+        d: "Images use <code>&lt;img&gt;</code> and are self-closing. They need a <code>src</code> attribute.", 
+        k: "Add an image with src='https://picsum.photos/100'", 
+        c: "", 
+        v: c => c.includes('<img') && c.includes('src=') 
+    },
+    { 
+        t: "Unordered Lists", 
+        d: "Create lists with a <code>&lt;ul&gt;</code> wrapper and <code>&lt;li&gt;</code> items inside.", 
+        k: "Build a list with at least two &lt;li&gt; elements.", 
+        c: "<ul>\n  <li>Item 1</li>\n</ul>", 
+        v: c => c.includes('<ul>') && (c.match(/<li>/g) || []).length >= 2 
+    },
+    { 
+        t: "Div Containers", 
+        d: "The <code>&lt;div&gt;</code> is a generic container used to group elements together.", 
+        k: "Wrap two paragraphs inside a &lt;div&gt;.", 
+        c: "<div>\n  <p>P1</p>\n  <p>P2</p>\n</div>", 
+        v: c => c.includes('<div') && c.includes('</div>') && (c.match(/<p>/g) || []).length >= 2 
+    },
+    { 
+        t: "Form Basics", 
+        d: "Forms collect user data using inputs.", 
+        k: "Create a &lt;form&gt; containing an &lt;input&gt; and a &lt;button&gt;.", 
+        c: "<form>\n  <input>\n  <button>Send</button>\n</form>", 
+        v: c => c.includes('<form') && c.includes('<input') && c.includes('<button') 
+    },
+    { 
+        t: "Table Structure", 
+        d: "Use <code>&lt;table&gt;</code>, <code>&lt;tr&gt;</code> for rows, and <code>&lt;td&gt;</code> for cells.", 
+        k: "Build a table with one row and two &lt;td&gt; cells.", 
+        c: "<table><tr><td>Cell 1</td><td>Cell 2</td></tr></table>", 
+        v: c => c.includes('<table>') && c.includes('<tr>') && (c.match(/<td>/g) || []).length >= 2 
+    }
+];
 
         let idx = 0;
         const $ =id=> document.getElementById(id);
