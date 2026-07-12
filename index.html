@@ -1,122 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TagStart Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <style>
-        body { margin:0; font-family:sans-serif; background:#09090b; color:#f4f4f5; display:grid; grid-template-rows:50px 1fr; height:100vh; overflow:hidden; }
-        header { display:flex; justify-content:space-between; align-items:center; padding:0 20px; background:#18181b; border-bottom:1px solid #27272a; font-size:14px; }
-        .main { display:grid; grid-template-columns:300px 1fr 1fr; }
-        .side { background:#111; padding:20px; border-right:1px solid #27272a; display:flex; flex-direction:column; justify-content:space-between; }
-        textarea, iframe { width:100%; height:100%; border:none; background:#09090b; color:#34d399; font-family:monospace; padding:20px; font-size:14px; box-sizing:border-box; outline:none; }
-        iframe { background:white; border-left:1px solid #27272a; }
-        button { background:#2563eb; color:white; border:none; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer; }
-        button:disabled { background:#27272a; color:#71717a; cursor:not-allowed; }
-        code { background:#27272a; color:#f43f5e; padding:2px 4px; border-radius:4px; font-family:monospace; }
+        :root {
+            --bg: #09090b;
+            --panel: #141416;
+            --border: #27272a;
+            --accent: #3b82f6;
+            --text: #e4e4e7;
+        }
+        body { 
+            margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); color: var(--text); height: 100vh; overflow: hidden;
+            display: grid; grid-template-rows: auto 1fr; padding: 16px; gap: 16px; box-sizing: border-box;
+        }
+        
+        header { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
+        
+        .grid-container {
+            display: grid; 
+            grid-template-columns: 300px 1fr 1fr; 
+            gap: 16px; 
+            height: calc(100vh - 80px);
+        }
+
+        /* Card with Glow container */
+        .card {
+            position: relative;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s ease;
+        }
+
+        /* The Glow Effect Layer */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 16px;
+            pointer-events: none;
+            background: radial-gradient(circle 200px at var(--x, 50%) var(--y, 50%), rgba(59, 130, 246, 0.15), transparent 80%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1;
+        }
+        .card:hover::before { opacity: 1; }
+
+        .card-header { position: relative; z-index: 2; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;}
+        
+        .side { position: relative; z-index: 2; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        textarea, iframe { position: relative; z-index: 2; width: 100%; height: 100%; border: none; background: transparent; color: #34d399; font-family: "Fira Code", monospace; padding: 20px; box-sizing: border-box; outline: none; resize: none; font-size: 14px;}
+        iframe { background: white; }
+        
+        button { position: relative; z-index: 2; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        button:disabled { background: #18181b; color: #52525b; border: 1px solid var(--border); cursor: not-allowed; }
+        
+        code { background: #27272a; padding: 2px 4px; border-radius: 4px; color: #fb7185; }
+        .task-box { position: relative; z-index: 2; background: #09090b; padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-top: 10px; font-size: 14px; line-height: 1.5; }
     </style>
 </head>
 <body>
 
-    <header><strong>TAGSTART // DEEP TRACK</strong><div id="lvl">Step 1/4</div></header>
+    <header>
+        <div style="font-weight: 800; letter-spacing: -1px; font-size: 20px;">TAGSTART <span style="color:var(--accent)">//</span> PRO</div>
+        <div id="lvl" style="font-size: 12px; color: #71717a; background: var(--panel); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border);">Step 1/7</div>
+    </header>
 
-    <div class="main">
-        <div class="side">
+    <div class="grid-container">
+        <div class="card side" id="side-card">
             <div>
-                <h3 id="title" style="margin:0 0 10px 0"></h3>
-                <p id="desc" style="color:#a1a1aa; font-size:14px; line-height:1.4;"></p>
-                <div style="background:#18181b; border:1px solid #27272a; padding:10px; border-radius:6px; font-size:13px; margin-top:15px;">
-                    <b style="color:#2563eb">TASK:</b> <span id="task"></span>
+                <h3 id="title" style="margin: 0; font-size: 20px;"></h3>
+                <p id="desc" style="color: #a1a1aa; font-size: 14px; margin: 10px 0;"></p>
+                <div class="task-box">
+                    <div style="color:var(--accent); font-size: 11px; font-weight: bold; margin-bottom: 5px;">MISSION</div>
+                    <span id="task"></span>
                 </div>
             </div>
             <button id="btn" onclick="next()" disabled>Complete Task First</button>
         </div>
-        <textarea id="edit" spellcheck="false" oninput="run()"></textarea>
-        <iframe id="view"></iframe>
+
+        <div class="card" id="editor-card">
+            <div class="card-header">Code Editor</div>
+            <textarea id="edit" spellcheck="false" oninput="run()"></textarea>
+        </div>
+
+        <div class="card" id="preview-card">
+            <div class="card-header">Live Preview</div>
+            <iframe id="view"></iframe>
+        </div>
     </div>
 
     <script>
+        // Mouse follow effect
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--x', `${x}px`);
+                card.style.setProperty('--y', `${y}px`);
+            });
+        });
+
         const steps = [
-    { 
-        t: "Text Hierarchy", 
-        d: "Use <code>&lt;h1&gt;</code> for titles and <code>&lt;p&gt;</code> for body text.", 
-        k: "Write a heading and a paragraph below it.", 
-        c: "<h1>Title</h1>\n<p>Text</p>", 
-        v: c => c.includes('<h1>') && c.includes('</h1>') && c.includes('<p>') && c.includes('</p>') 
-    },
-    { 
-        t: "Hyperlinks", 
-        d: "Links use <code>&lt;a&gt;</code> with an <code>href</code> attribute to point to a URL.", 
-        k: "Create a link: &lt;a href='https://google.com'&gt;Go&lt;/a&gt;", 
-        c: "", 
-        v: c => c.includes('href="https://google.com"') || c.includes("href='https://google.com'") 
-    },
-    { 
-        t: "Images", 
-        d: "Images use <code>&lt;img&gt;</code> and are self-closing. They need a <code>src</code> attribute.", 
-        k: "Add an image with src='https://picsum.photos/100'", 
-        c: "", 
-        v: c => c.includes('<img') && c.includes('src=') 
-    },
-    { 
-        t: "Unordered Lists", 
-        d: "Create lists with a <code>&lt;ul&gt;</code> wrapper and <code>&lt;li&gt;</code> items inside.", 
-        k: "Build a list with at least two &lt;li&gt; elements.", 
-        c: "<ul>\n  <li>Item 1</li>\n</ul>", 
-        v: c => c.includes('<ul>') && (c.match(/<li>/g) || []).length >= 2 
-    },
-    { 
-        t: "Div Containers", 
-        d: "The <code>&lt;div&gt;</code> is a generic container used to group elements together.", 
-        k: "Wrap two paragraphs inside a &lt;div&gt;.", 
-        c: "<div>\n  <p>P1</p>\n  <p>P2</p>\n</div>", 
-        v: c => c.includes('<div') && c.includes('</div>') && (c.match(/<p>/g) || []).length >= 2 
-    },
-    { 
-        t: "Form Basics", 
-        d: "Forms collect user data using inputs.", 
-        k: "Create a &lt;form&gt; containing an &lt;input&gt; and a &lt;button&gt;.", 
-        c: "<form>\n  <input>\n  <button>Send</button>\n</form>", 
-        v: c => c.includes('<form') && c.includes('<input') && c.includes('<button') 
-    },
-    { 
-        t: "Table Structure", 
-        d: "Use <code>&lt;table&gt;</code>, <code>&lt;tr&gt;</code> for rows, and <code>&lt;td&gt;</code> for cells.", 
-        k: "Build a table with one row and two &lt;td&gt; cells.", 
-        c: "<table><tr><td>Cell 1</td><td>Cell 2</td></tr></table>", 
-        v: c => c.includes('<table>') && c.includes('<tr>') && (c.match(/<td>/g) || []).length >= 2 
-    }
-];
+            { t: "Text Hierarchy", d: "Use <code>&lt;h1&gt;</code> and <code>&lt;p&gt;</code>.", k: "Make an h1 title and a paragraph.", c: "<h1>Title</h1>\n<p>Text</p>", v: c => c.includes('<h1>') && c.includes('<p>') },
+            { t: "Hyperlinks", d: "Use <code>&lt;a&gt;</code> tags.", k: "Create a link to google.com", c: "", v: c => c.includes('<a') },
+            { t: "Images", d: "Use <code>&lt;img&gt;</code> tags.", k: "Add an image with src='https://picsum.photos/100'", c: "", v: c => c.includes('<img') },
+            { t: "Lists", d: "Use <code>&lt;ul&gt;</code> and <code>&lt;li&gt;</code>.", k: "Make a list with 2 items.", c: "<ul>\n<li>1</li>\n<li>2</li>\n</ul>", v: c => c.includes('<ul>') && (c.match(/<li>/g) || []).length >= 2 },
+            { t: "Containers", d: "Use <code>&lt;div&gt;</code> to group elements.", k: "Wrap two paragraphs in a div.", c: "<div>\n<p>1</p>\n<p>2</p>\n</div>", v: c => c.includes('<div') && (c.match(/<p>/g) || []).length >= 2 },
+            { t: "Forms", d: "Use <code>&lt;form&gt;</code>.", k: "Create a form with an input.", c: "<form>\n<input>\n</form>", v: c => c.includes('<form') },
+            { t: "Tables", d: "Use <code>&lt;table&gt;</code>.", k: "Make a table with 2 cells.", c: "<table><tr><td>1</td><td>2</td></tr></table>", v: c => c.includes('<table>') }
+        ];
 
         let idx = 0;
-        const $ =id=> document.getElementById(id);
+        const $ = id => document.getElementById(id);
 
         function load() {
-            if (idx>=steps.length) {
-                document.querySelector('.main').innerHTML="<div style='grid-column:span 3;text-align:center;padding-top:100px;'><h2>Yay!! Deep Course Finished</h2></div>";
-                return;
-            }
-            $("lvl").innerText=`Step ${idx +1}/${steps.length}`;
-            $("title").innerText=steps[idx].t;
+            if (idx >= steps.length) { document.querySelector('.grid-container').innerHTML = "<h1 style='text-align:center; grid-column:span 3; margin-top:20vh;'>Challenge Complete!</h1>"; return; }
+            $("lvl").innerText = `Level ${idx + 1}/${steps.length}`;
+            $("title").innerText = steps[idx].t;
             $("desc").innerHTML = steps[idx].d;
             $("task").innerHTML = steps[idx].k;
-            $("edit").value=steps[idx].c;
+            $("edit").value = steps[idx].c;
             run();
         }
 
         function run() {
-            const code=$("edit").value;
-            const doc=$("view").contentDocument;
-            doc.write(`<style>body{font-family:sans-serif;padding:10px;}</style>${code}`);
-            
-
-            
-            const  cleanCode=code.toLowerCase().replace(/\s+/g,' ');
-            const pass = steps[idx].v(cleanCode);
-            $("btn").disabled=!pass;
-            $("btn").innerText=pass ? "Next Challenge ---->" : "Complete Task First";
+            const code = $("edit").value;
+            const doc = $("view").contentDocument;
+            doc.open(); doc.write(`<style>body{font-family:sans-serif;}</style>${code}`); doc.close();
+            const pass = steps[idx].v(code.toLowerCase());
+            $("btn").disabled = !pass;
         }
 
-        function next() {idx++; load();}
+        function next() {
+            confetti({
+                particleCount:150,
+                spread:70,
+                origin:{y: 0.6}
+            }); 
+            idx++; 
+            load(); 
+        }
+
         load();
     </script>
 </body>
