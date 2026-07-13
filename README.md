@@ -1,18 +1,31 @@
-# TagStart Pro // Deep Track
+# TagStart Pro
 
---> An interactive, zero-dependency, global-first HTML academy built entirely in the browser.
+TagStart Pro is a simple HTML learning website I built to help beginners actually practice coding instead of just reading about it or just keep watching yt videos which u forget in seconds. The idea is to learn by writing real HTML and seeing the results instantly in your browser right next to the code instantlly!
 
-TagStart Pro is a lightweight web application designed to help new coders learn the essential building blocks of HTML through an active, hands-on environment. Instead of just reading tutorials, users write real HTML code and watch it compile instantly in a split-screen dashboard.
+Everything runs directly in your browser, so you don't have to install anything or use a terminal. Just open the website and start codingggggg.
 
-### How to Run Locally:
-1. Clone this repository or download the source files.
-2. Open the index.html file directly in any web browser
-3. No installation, server terminal setup, or npm packages required!
-4. You can also use the global link for this project :  https://vardaansworld-star.github.io/TagStart/
+##  How to Run
 
-##  Key Features
+1. Download or clone this project fot the github.
+2. Open my index.html in any web browser as u wish my broddha.
+3. That's it! No npm, no setup, no servers(ez game).
 
-* **Tri-Panel Interactive Workspace:** A unified layout featuring conceptual instructions (left), a live code canvas text area (center), and an encapsulated web preview window (right).
-* **Deep Track Curriculum Engine:** Moves past surface-level text tutorials to guide students through structural text hierarchy (`<h1>`/`<p>`), global hyperlinks (`<a>`), self-closing media (`<img>`), and structural groupings (`<ul>`/`<li>`) any more added!
-* **Lenient Spacing Validator:** Uses a specialized regular expression string handler that safely analyzes student input by standardizing formatting, giving them the flexibility to write clean code their own way.
-* **Sleek Modern Tech Aesthetic:** Designed with a dark-mode theme inspired by high-end engineering interfaces like Vercel and GitHub, keeping students focused and reducing visual fatigue.
+Or you can try it online here:
+
+**https://vardaansworld-star.github.io/TagStart/**
+
+##  Features
+
+* **Three-panel workspace** – Instructions on the left, code editor in the middle, and a live preview on the right.
+* **Learn by doing** – Practice HTML by writing real code and seeing your changes instantly.
+* **Beginner-friendly lessons** – Covers headings, paragraphs, links, images, lists, and more as new lessons are added.
+* **Flexible code checker** – Doesn't fail you over tiny spacing differences, so you can focus on learning HTML instead of formatting.
+* **Dark theme** – A clean interface that's easy on the eyes, especially during longer coding sessions.
+
+##  Why I Made This???
+
+When I was just lerning HTML it was so boring just watching every yt videa again and again and i couldnt even understand it....
+
+Ik this project is not to like advance GIGACHAD type of material but im still improving it!
+
+Thanks for checking it out! 
