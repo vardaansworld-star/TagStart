@@ -7,25 +7,25 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <style>
         :root {
-            --bg: #f8fafc;
-            --panel: #ffffff;
-            --border: #e2e8f0;
+            --bg: #FFFDD0;
+            --panel: #FFFEE8;
+            --border: #E6E2B8;
             --accent: #7c3aed;
-            --text: #0f172a;
+            --text: #1e1b18;
             --code-text: #059669;
-            --box-bg: #f1f5f9;
-            --muted: #64748b;
+            --box-bg: #F5F2C6;
+            --muted: #6b655b;
         }
 
-        body.dark-theme{
-            --bg:#09090b;
-            --panel: #141416;
-            --border: #27272a;
-            --accent: #3b82f6;
-            --text: #e4e4e7;
+        body.dark-theme {
+            --bg: #0f172a;
+            --panel: #1e293b;
+            --border: #334155;
+            --accent: #818cf8;
+            --text: #f8fafc;
             --code-text: #34d399;
-            --box-bg: #09090b;
-            --muted: #a1a1aa;
+            --box-bg: #0f172a;
+            --muted: #94a3b8;
         }
         
         body { 
@@ -85,13 +85,12 @@
         .tab-container { display: flex; gap: 8px; margin-bottom: 12px; margin-top: 10px; }
         .tab-btn { flex: 1; padding: 8px; font-size: 12px; background: var(--box-bg); color: var(--muted); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-     
+        
         .no-copy {
             -webkit-user-select: none;
             -ms-user-select: none;
             user-select: none;
         }
-
 
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -174,7 +173,6 @@
         });
 
         const steps = [
- 
             { 
                 t: "Text Hierarchy", 
                 d: "Use <code>&lt;h1&gt;</code> and <code>&lt;p&gt;</code>.", 
@@ -224,8 +222,6 @@
                 c: "<table>\n  <tr>\n    <td>Cell 1</td>\n    <td>Cell 2</td>\n  </tr>\n</table>", 
                 v: (input) => input.includes('<table>') && input.includes('<td>') 
             },
-
-
             { 
                 t: "Clickable Buttons", 
                 d: "Use the <code>&lt;button&gt;</code> tag to create interactive elements.", 
@@ -268,8 +264,6 @@
                 c: "<header>Top</header>\n<main>Content</main>\n<footer>Bottom</footer>", 
                 v: (input) => input.includes('<header>') && input.includes('<main>') && input.includes('<footer>') 
             },
-
-
             { 
                 t: "Inline CSS Colors", 
                 d: "Use the <code>style</code> attribute to change font color.", 
@@ -344,7 +338,6 @@
             "Great web design combines semantic HTML containers with CSS padding, borders, alignment, and image styling!"
         ];
 
-        // STRICT ANTI-COPY PROTECTION FOR THE LEARN BOX
         const learnBox = document.getElementById('learn-box');
         ['copy', 'cut', 'contextmenu', 'selectstart'].forEach(evt => {
             learnBox.addEventListener(evt, (e) => {
@@ -399,9 +392,9 @@
 
         function next() {
             confetti({
-                particleCount:100,
-                spread:70,
-                origin:{y: 0.6}
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
             }); 
             
             if (idx === 6) {
