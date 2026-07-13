@@ -27,6 +27,7 @@
             --box-bg: #09090b;
             --muted: #a1a1aa;
         }
+        
         body { 
             margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: var(--bg); color: var(--text); height: 100vh; overflow: hidden;
@@ -43,7 +44,6 @@
             height: calc(100vh - 80px);
         }
 
-        
         .card {
             position: relative;
             background: var(--panel);
@@ -77,10 +77,35 @@
         iframe { background: white; }
         
         button { position: relative; z-index: 2; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        button:disabled { opacity: 0.4;cursor: not-allowed; }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
         
         code { background: var(--box-bg); padding: 2px 4px; border-radius: 4px; color: #e11d48; font-weight: bold; }
         .task-box { position: relative; z-index: 2; background: var(--box-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-top: 10px; font-size: 14px; line-height: 1.5; transition: background-color 0.3s;}
+
+        .tab-container { display: flex; gap: 8px; margin-bottom: 12px; margin-top: 10px; }
+        .tab-btn { flex: 1; padding: 8px; font-size: 12px; background: var(--box-bg); color: var(--muted); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+     
+        .no-copy {
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--panel); border: 1px solid var(--border);
+            padding: 32px; border-radius: 20px; text-align: center; max-width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); transform: scale(0.9); transition: transform 0.3s ease;
+        }
+        .modal-overlay.show .modal-content { transform: scale(1); }
     </style>
 </head>
 <body>
@@ -88,8 +113,8 @@
     <header>
         <div style="font-weight: 800; letter-spacing: -1px; font-size: 20px;">TAGSTART <span style="color:var(--accent)">//</span> PRO</div>
         <div style="display: flex; gap:10px; align-items: center;">
-            <button onclick="toggleTheme()" id="theme-btn" style="padding:6px 12px; font-size:12px; border-radius:20px;background: var(--panel); color:var(--text); border:1px solid var(--border); box-shadow:none;">🌙 Dark Mode</button>
-            <div id="lvl" style="font-size: 12px; color: var(--muted); background: var(--panel); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border);">Step 1/7</div>
+            <button onclick="toggleTheme()" id="theme-btn" style="padding:6px 12px; font-size:12px; border-radius:20px; background: var(--panel); color:var(--text); border:1px solid var(--border); box-shadow:none;">🌙 Dark Mode</button>
+            <div id="lvl" style="font-size: 12px; color: var(--muted); background: var(--panel); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border);">Step 1/20</div>
         </div>
     </header>
 
@@ -98,9 +123,20 @@
             <div>
                 <h3 id="title" style="margin: 0; font-size: 20px;"></h3>
                 <p id="desc" style="color: var(--muted); font-size: 14px; margin: 10px 0;"></p>
-                <div class="task-box">
+                
+                <div class="tab-container">
+                    <button class="tab-btn active" id="btn-mission" onclick="switchTab('mission')">🎯 Mission</button>
+                    <button class="tab-btn" id="btn-learn" onclick="switchTab('learn')">📖 Learn</button>
+                </div>
+
+                <div class="task-box" id="mission-box">
                     <div style="color:var(--accent); font-size: 11px; font-weight: bold; margin-bottom: 5px;">MISSION</div>
                     <span id="task"></span>
+                </div>
+
+                <div class="task-box no-copy" id="learn-box" style="display: none; border-left: 3px solid var(--code-text);">
+                    <div style="color:var(--code-text); font-size: 11px; font-weight: bold; margin-bottom: 5px;">THEORY & EXPLANATION</div>
+                    <div id="learn-text" style="font-size: 13px; color: var(--text);"></div>
                 </div>
             </div>
             <button id="btn" onclick="next()" disabled>Complete Task First</button>
@@ -117,6 +153,15 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="module-modal">
+        <div class="modal-content">
+            <div style="font-size: 48px; margin-bottom: 10px;">🏆</div>
+            <h2 id="modal-title" style="margin: 0 0 10px 0; color: var(--text);">Module Complete!</h2>
+            <p id="modal-desc" style="color: var(--muted); font-size: 14px; line-height: 1.5; margin-bottom: 24px;"></p>
+            <button onclick="closeModal()" style="width: 100%;">Continue to Next Module 🚀</button>
+        </div>
+    </div>
+
     <script>
         document.querySelectorAll('.card').forEach(card => {
             card.addEventListener('mousemove', e => {
@@ -129,150 +174,195 @@
         });
 
         const steps = [
-    { 
-        t: "Text Hierarchy", 
-        d: "Use <code>&lt;h1&gt;</code> and <code>&lt;p&gt;</code>.", 
-        k: "Make an h1 title and a paragraph.", 
-        c: "<h1>Title</h1>\n<p>Text</p>", 
-        v: (input) => input.includes('<h1>') && input.includes('<p>') 
-    },
-    { 
-        t: "Hyperlinks", 
-        d: "Use <code>&lt;a&gt;</code> tags.", 
-        k: "Create a link to google.com", 
-        c: "", 
-        v: (input) => input.includes('<a') 
-    },
-    { 
-        t: "Images", 
-        d: "Use <code>&lt;img&gt;</code> tags.", 
-        k: "Add an image with src='https://picsum.photos/100'", 
-        c: "", 
-        v: (input) => input.includes('<img') 
-    },
-    { 
-        t: "Lists", 
-        d: "Use <code>&lt;ul&gt;</code> and <code>&lt;li&gt;</code>.", 
-        k: "Make a list with 2 items.", 
-        c: "<ul>\n  <li>Item 1</li>\n  <li>Item 2</li>\n</ul>", 
-        v: (input) => input.includes('<ul>') && (input.match(/<li>/g) || []).length >= 2 
-    },
-    { 
-        t: "Containers", 
-        d: "Use <code>&lt;div&gt;</code> to group elements.", 
-        k: "Wrap two paragraphs in a div.", 
-        c: "<div>\n  <p>Paragraph 1</p>\n  <p>Paragraph 2</p>\n</div>", 
-        v: (input) => input.includes('<div') && (input.match(/<p>/g) || []).length >= 2 
-    },
-    { 
-        t: "Forms", 
-        d: "Use <code>&lt;form&gt;</code>.", 
-        k: "Create a form with an input.", 
-        c: "<form>\n  <input>\n</form>", 
-        v: (input) => input.includes('<form') && input.includes('<input') 
-    },
-    { 
-        t: "Tables", 
-        d: "Use <code>&lt;table&gt;</code>.", 
-        k: "Make a table with 2 cells.", 
-        c: "<table>\n  <tr>\n    <td>Cell 1</td>\n    <td>Cell 2</td>\n  </tr>\n</table>", 
-        v: (input) => input.includes('<table>') && input.includes('<td>') 
-    },
-    { 
-        t: "Clickable Buttons", 
-        d: "Use the <code>&lt;button&gt;</code> tag to create interactive elements.", 
-        k: "Create a button that says 'Click Me'.", 
-        c: "<button>Click Me</button>", 
-        v: (input) => input.includes('<button>') && input.includes('</button>') 
-    },
-    {
-        t: "Text Emphasis",
-        d: "Use <code>&lt;strong&gt;</code> for bold and <code>&lt;em&gt;</code> for italics.",
-        k: "Make a paragraph with strong and italic words.",
-        c: "<p>This is <strong>important</strong> and <em>cool</em>.</p>",
-        v: (input) => input.includes('<strong>') && input.includes('<em>')
-    },
-    {
-        t: "Dropdown Menus",
-        d: "Use <code>&lt;select&gt;</code> and <code>&lt;option&gt;</code> to create a choice menu.",
-        k: "Make a select dropdown with at least 2 options.",
-        c: "<select>\n  <option>Apple</option>\n  <option>Orange</option>\n</select>",
-        v: (input) => input.includes('<select') && (input.match(/<option>/g) || []).length >= 2
-    },
-    {
-        t: "Color picker",
-        d: "HTML5 inputs can be interactive! Use <code>type='color'</code>.",
-        k: "Create an input with type='color'.",
-        c: "<input type='color'>",
-        v: (input) => input.includes("type='color'") || input.includes('type="color"')
-    },
-    {
-        t: "Checkboxes",
-        d: "Allow toggle choices using <code>type='checkbox'</code>.",
-        k: "Make a checkbox input.",
-        c: "<input type='checkbox'> Remember me",
-        v: (input) => input.includes("type='checkbox'") || input.includes('type="checkbox"')
-    },
-    {
-        t: "Semantic Layout",
-        d: "Modern web uses <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, and <code>&lt;footer&gt;</code>.",
-        k: "Create a structure with a header, main, and footer.",
-        c: "<header>Top</header>\n<main>Content</main>\n<footer>Bottom</footer>",
-        v: (input) => input.includes('<header>') && input.includes('<main>') && input.includes('<footer>')
-    },
-    {
-        t: "Inline CSS Colors",
-        d: "Use the <code>style</code> attribute to change font color.",
-        k: "Make an h1 heading with color: red;",
-        c: "<h1 style='color: red;'>Red Title</h1>",
-        v: (input) => input.includes('style=') && input.includes('color:')
-    },
-    {
-        t: "Background Colors",
-        d: "Use <code>background-color</code> inside a style attribute.",
-        k: "Give a div a yellow background color.",
-        c: "<div style='background-color: yellow;'>Highlighted Box</div>",
-        v: (input) => input.includes('background-color:')
-    },
-    {
-        t: "Text Alignment",
-        d: "Center your elements using <code>text-align: center;</code>.",
-        k: "Center align a paragraph.",
-        c: "<p style='text-align: center;'>I am centered!</p>",
-        v: (input) => input.includes('text-align:') && input.includes('center')
-    },
-    {
-        t: "Borders & Radii",
-        d: "Add outlines with <code>border</code> and round them with <code>border-radius</code>.",
-        k: "Create a button with a solid border and border-radius.",
-        c: "<button style='border: 2px solid black; border-radius: 8px;'>Rounded Button</button>",
-        v: (input) => input.includes('border:') && input.includes('border-radius:')
-    },
-    {
-        t: "Box Spacing (Padding)",
-        d: "Use <code>padding</code> to add breathing room inside an element.",
-        k: "Create a div with 20px padding.",
-        c: "<div style='padding: 20px; background: #eee;'>Spaced out content</div>",
-        v: (input) => input.includes('padding:')
-    },
-    {
-        t: "Flexbox Layouts",
-        d: "Use <code>display: flex; gap: 10px;</code> to align items side-by-side.",
-        k: "Put two buttons side by side using flexbox.",
-        c: "<div style='display: flex; gap: 10px;'>\n  <button>Left</button>\n  <button>Right</button>\n</div>",
-        v: (input) => input.includes('display:') && input.includes('flex')
-    },
-    {
-        t: "Grand Finale: Profile Card",
-        d: "Combine HTML and CSS! Build a complete mini profile card.",
-        k: "Create a styled div containing an image, an h2, and a paragraph.",
-        c: "<div style='border: 1px solid #ccc; padding: 16px; border-radius: 12px; text-align: center;'>\n  <img src='https://picsum.photos/80' style='border-radius: 50%;'>\n  <h2>Dev Pro</h2>\n  <p>Ready to code the world!</p>\n</div>",
-        v: (input) => input.includes('<div') && input.includes('<img') && input.includes('<h2') && input.includes('style=')    
-    }
-];
+ 
+            { 
+                t: "Text Hierarchy", 
+                d: "Use <code>&lt;h1&gt;</code> and <code>&lt;p&gt;</code>.", 
+                k: "Make an h1 title and a paragraph.", 
+                c: "<h1>Title</h1>\n<p>Text</p>", 
+                v: (input) => input.includes('<h1>') && input.includes('<p>') 
+            },
+            { 
+                t: "Hyperlinks", 
+                d: "Use <code>&lt;a&gt;</code> tags.", 
+                k: "Create a link to google.com", 
+                c: "", 
+                v: (input) => input.includes('<a') 
+            },
+            { 
+                t: "Images", 
+                d: "Use <code>&lt;img&gt;</code> tags.", 
+                k: "Add an image with src='https://picsum.photos/100'", 
+                c: "", 
+                v: (input) => input.includes('<img') 
+            },
+            { 
+                t: "Lists", 
+                d: "Use <code>&lt;ul&gt;</code> and <code>&lt;li&gt;</code>.", 
+                k: "Make a list with 2 items.", 
+                c: "<ul>\n  <li>Item 1</li>\n  <li>Item 2</li>\n</ul>", 
+                v: (input) => input.includes('<ul>') && (input.match(/<li>/g) || []).length >= 2 
+            },
+            { 
+                t: "Containers", 
+                d: "Use <code>&lt;div&gt;</code> to group elements.", 
+                k: "Wrap two paragraphs in a div.", 
+                c: "<div>\n  <p>Paragraph 1</p>\n  <p>Paragraph 2</p>\n</div>", 
+                v: (input) => input.includes('<div') && (input.match(/<p>/g) || []).length >= 2 
+            },
+            { 
+                t: "Forms", 
+                d: "Use <code>&lt;form&gt;</code>.", 
+                k: "Create a form with an input.", 
+                c: "<form>\n  <input>\n</form>", 
+                v: (input) => input.includes('<form') && input.includes('<input') 
+            },
+            { 
+                t: "Tables", 
+                d: "Use <code>&lt;table&gt;</code>.", 
+                k: "Make a table with 2 cells.", 
+                c: "<table>\n  <tr>\n    <td>Cell 1</td>\n    <td>Cell 2</td>\n  </tr>\n</table>", 
+                v: (input) => input.includes('<table>') && input.includes('<td>') 
+            },
+
+
+            { 
+                t: "Clickable Buttons", 
+                d: "Use the <code>&lt;button&gt;</code> tag to create interactive elements.", 
+                k: "Create a button that says 'Click Me'.", 
+                c: "<button>Click Me</button>", 
+                v: (input) => input.includes('<button>') && input.includes('</button>') 
+            },
+            { 
+                t: "Text Emphasis", 
+                d: "Use <code>&lt;strong&gt;</code> for bold and <code>&lt;em&gt;</code> for italics.", 
+                k: "Make a paragraph with strong and italic words.", 
+                c: "<p>This is <strong>important</strong> and <em>cool</em>.</p>", 
+                v: (input) => input.includes('<strong>') && input.includes('<em>') 
+            },
+            { 
+                t: "Dropdown Menus", 
+                d: "Use <code>&lt;select&gt;</code> and <code>&lt;option&gt;</code> to create a choice menu.", 
+                k: "Make a select dropdown with at least 2 options.", 
+                c: "<select>\n  <option>Apple</option>\n  <option>Orange</option>\n</select>", 
+                v: (input) => input.includes('<select') && (input.match(/<option>/g) || []).length >= 2 
+            },
+            { 
+                t: "Color picker", 
+                d: "HTML5 inputs can be interactive! Use <code>type='color'</code>.", 
+                k: "Create an input with type='color'.", 
+                c: "<input type='color'>", 
+                v: (input) => input.includes("type='color'") || input.includes('type="color"') 
+            },
+            { 
+                t: "Checkboxes", 
+                d: "Allow toggle choices using <code>type='checkbox'</code>.", 
+                k: "Make a checkbox input.", 
+                c: "<input type='checkbox'> Remember me", 
+                v: (input) => input.includes("type='checkbox'") || input.includes('type="checkbox"') 
+            },
+            { 
+                t: "Semantic Layout", 
+                d: "Modern web uses <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, and <code>&lt;footer&gt;</code>.", 
+                k: "Create a structure with a header, main, and footer.", 
+                c: "<header>Top</header>\n<main>Content</main>\n<footer>Bottom</footer>", 
+                v: (input) => input.includes('<header>') && input.includes('<main>') && input.includes('<footer>') 
+            },
+
+
+            { 
+                t: "Inline CSS Colors", 
+                d: "Use the <code>style</code> attribute to change font color.", 
+                k: "Make an h1 heading with color: red;", 
+                c: "<h1 style='color: red;'>Red Title</h1>", 
+                v: (input) => input.includes('style=') && input.includes('color:') 
+            },
+            { 
+                t: "Background Colors", 
+                d: "Use <code>background-color</code> inside a style attribute.", 
+                k: "Give a div a yellow background color.", 
+                c: "<div style='background-color: yellow;'>Highlighted Box</div>", 
+                v: (input) => input.includes('background-color:') 
+            },
+            { 
+                t: "Text Alignment", 
+                d: "Center your elements using <code>text-align: center;</code>.", 
+                k: "Center align a paragraph.", 
+                c: "<p style='text-align: center;'>I am centered!</p>", 
+                v: (input) => input.includes('text-align:') && input.includes('center') 
+            },
+            { 
+                t: "Borders & Radii", 
+                d: "Add outlines with <code>border</code> and round them with <code>border-radius</code>.", 
+                k: "Create a button with a solid border and border-radius.", 
+                c: "<button style='border: 2px solid black; border-radius: 8px;'>Rounded Button</button>", 
+                v: (input) => input.includes('border:') && input.includes('border-radius:') 
+            },
+            { 
+                t: "Box Spacing (Padding)", 
+                d: "Use <code>padding</code> to add breathing room inside an element.", 
+                k: "Create a div with 20px padding.", 
+                c: "<div style='padding: 20px; background: #eee;'>Spaced out content</div>", 
+                v: (input) => input.includes('padding:') 
+            },
+            { 
+                t: "Flexbox Layouts", 
+                d: "Use <code>display: flex; gap: 10px;</code> to align items side-by-side.", 
+                k: "Put two buttons side by side using flexbox.", 
+                c: "<div style='display: flex; gap: 10px;'>\n  <button>Left</button>\n  <button>Right</button>\n</div>", 
+                v: (input) => input.includes('display:') && input.includes('flex') 
+            },
+            { 
+                t: "Grand Finale: Profile Card", 
+                d: "Combine HTML and CSS! Build a complete mini profile card.", 
+                k: "Create a styled div containing an image, an h2, and a paragraph.", 
+                c: "<div style='border: 1px solid #ccc; padding: 16px; border-radius: 12px; text-align: center;'>\n  <img src='https://picsum.photos/80' style='border-radius: 50%;'>\n  <h2>Dev Pro</h2>\n  <p>Ready to code the world!</p>\n</div>", 
+                v: (input) => input.includes('<div') && input.includes('<img') && input.includes('<h2') && input.includes('style=')    
+            }
+        ];
+
+        const learnDocs = [
+            "HTML uses heading tags (h1 to h6) to structure importance. Paragraphs (p) hold standard text. Browsers automatically add spacing around them.",
+            "The anchor tag (a) creates hyperlinks. The 'href' attribute tells the browser where the link should take the user when clicked.",
+            "The image tag (img) embeds visuals. It is self-closing and relies on the 'src' attribute to locate the image file.",
+            "Unordered lists (ul) create bulleted lists. Every individual bullet point must be wrapped inside a list item (li) tag.",
+            "A div is a block-level container. It produces no visual change by itself but is essential for grouping elements to style them together.",
+            "Forms group input controls. The form tag acts as a wrapper that can collect and send user data to a server.",
+            "Tables organize data into rows (tr) and data cells (td). They are great for grids of information.",
+            "The button tag creates a clickable interactive element. By default, it submits forms or can be styled to trigger JavaScript actions.",
+            "The strong tag gives text bold visual importance, while the em tag emphasizes text with italics.",
+            "The select tag creates a drop-down menu. Each selectable item inside it must be written as an option tag.",
+            "HTML5 includes native UI widgets. Setting an input type to 'color' gives the user an interactive color picker.",
+            "Checkboxes allow users to select true/false or yes/no options independently using type='checkbox'.",
+            "Semantic HTML uses meaningful tag names like header, main, and footer instead of generic divs to improve accessibility.",
+            "The style attribute allows inline CSS. You write property-value pairs like color: red; directly inside the HTML tag.",
+            "The background-color CSS property fills the background behind an element's text and padding.",
+            "The text-align CSS property controls horizontal alignment. Setting it to center pushes inline text to the middle of the container.",
+            "Borders draw lines around elements. The border-radius property rounds the square corners of an element.",
+            "Padding creates empty breathing room inside an element's border, pushing the inner content away from the edges.",
+            "Flexbox (display: flex) arranges child elements side by side in a row automatically. The gap property adds spacing between them.",
+            "Great web design combines semantic HTML containers with CSS padding, borders, alignment, and image styling!"
+        ];
+
+        // STRICT ANTI-COPY PROTECTION FOR THE LEARN BOX
+        const learnBox = document.getElementById('learn-box');
+        ['copy', 'cut', 'contextmenu', 'selectstart'].forEach(evt => {
+            learnBox.addEventListener(evt, (e) => {
+                e.preventDefault();
+                return false;
+            });
+        });
 
         let idx = 0;
         const $ = id => document.getElementById(id);
+
+        function switchTab(tab) {
+            const isMission = tab === 'mission';
+            $("mission-box").style.display = isMission ? "block" : "none";
+            $("learn-box").style.display = isMission ? "none" : "block";
+            $("btn-mission").classList.toggle("active", isMission);
+            $("btn-learn").classList.toggle("active", !isMission);
+        }
 
         function load() {
             if (idx >= steps.length) { document.querySelector('.grid-container').innerHTML = "<h1 style='text-align:center; grid-column:span 3; margin-top:20vh;'>Challenge Complete!</h1>"; return; }
@@ -281,6 +371,10 @@
             $("desc").innerHTML = steps[idx].d;
             $("task").innerHTML = steps[idx].k;
             $("edit").value = steps[idx].c;
+            
+            $("learn-text").innerText = learnDocs[idx] || "Read the mission description carefully and apply your syntax skills!";
+            
+            switchTab('mission');
             run();
         }
 
@@ -292,20 +386,41 @@
             $("btn").disabled = !pass;
         }
 
+        function triggerModuleModal(title, desc) {
+            $("modal-title").innerText = title;
+            $("modal-desc").innerText = desc;
+            $("module-modal").classList.add("show");
+            confetti({ particleCount: 300, spread: 100, origin: { y: 0.4 } });
+        }
+
+        function closeModal() {
+            $("module-modal").classList.remove("show");
+        }
+
         function next() {
             confetti({
-                particleCount:150,
+                particleCount:100,
                 spread:70,
                 origin:{y: 0.6}
             }); 
+            
+            if (idx === 6) {
+                triggerModuleModal("Module 1 Mastered! 🌟", "You have conquered HTML Foundations! You now know how to structure text, links, images, lists, containers, forms, and tables.");
+            } else if (idx === 12) {
+                triggerModuleModal("Module 2 Mastered! ⚡", "Interactive & Semantic HTML unlocked! You built real buttons, dropdowns, native color pickers, and organized layout tags.");
+            } else if (idx === 19) {
+                triggerModuleModal("Course Completed! 🎓", "You combined HTML structure with CSS Flexbox, Box Model spacing, and custom styling to build interactive components!");
+            }
+
             idx++; 
             load(); 
         }
+
         function toggleTheme(){
             document.body.classList.toggle('dark-theme');
-            const isDark=document.body.classList.contains('dark-theme');
-            const btn=document.getElementById('theme-btn');
-            btn.innerHTML= isDark ? '🌞 Light Mode' : '🌙 Dark Mode';
+            const isDark = document.body.classList.contains('dark-theme');
+            const btn = document.getElementById('theme-btn');
+            btn.innerHTML = isDark ? '🌞 Light Mode' : '🌙 Dark Mode';
         }
 
         load();
